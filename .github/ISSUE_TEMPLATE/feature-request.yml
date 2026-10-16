@@ -1,0 +1,21 @@
+name: Skill improvement
+description: Suggest a focused improvement to an existing skill.
+title: "[Skill] "
+labels:
+  - enhancement
+body:
+  - type: input
+    id: skill
+    attributes:
+      label: Skill slug
+      description: Which skill should change?
+      placeholder: version-changelog
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Explain the use case, expected behavior, and security or side-effect considerations. Do not include secrets.
+    validations:
+      required: true

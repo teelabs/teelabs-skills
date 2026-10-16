@@ -1,0 +1,28 @@
+name: Skill problem
+description: Report a reproducible problem with a skill.
+title: "[Skill] "
+labels:
+  - bug
+body:
+  - type: input
+    id: skill
+    attributes:
+      label: Skill slug
+      description: Which skill is affected?
+      placeholder: dev-squad
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Describe the behavior and safe reproduction steps. Remove secrets and private data.
+    validations:
+      required: true
+  - type: input
+    id: revision
+    attributes:
+      label: Commit or version
+      description: Which revision did you use?
+    validations:
+      required: true

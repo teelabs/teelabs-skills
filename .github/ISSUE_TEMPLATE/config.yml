@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/teelabs/skills/security/advisories/new
+    about: Report prompt injection, unsafe commands, credential exposure, or supply-chain issues privately.

@@ -1,0 +1,4 @@
+interface:
+  display_name: Dev Squad
+  short_description: Coordinate an agent team through delivery and review gates
+  default_prompt: Use $dev-squad to take this engineering problem from discovery through an approval-ready implementation.
