@@ -2,23 +2,23 @@
 
 ## Goal
 
-Turn this repository into a public, vendor-neutral collection of independently installable and independently updateable AI-agent skills. The canonical repository is `teelabs/skills`.
+Turn this repository into a public, vendor-neutral collection of independently installable and independently updateable AI-agent skills. The canonical repository is `teelabs/teelabs-skills`.
 
 ## Users and supported workflows
 
-The collection serves people who want to discover or install one or more skills for Codex, Claude Code, Cursor, OpenCode, and other Agent Skills-compatible tools.
+The collection serves people who want to discover or install one or more skills for Codex, Claude Code, Cursor, OpenCode, and other Agent Skills-compatible tools. The canonical repository is `teelabs/teelabs-skills`.
 
 Supported workflows are:
 
 ```sh
-npx skills add teelabs/skills --list
-npx skills add teelabs/skills --skill dev-squad
+npx skills add teelabs/teelabs-skills --list
+npx skills add teelabs/teelabs-skills --skill dev-squad
 npx skills update dev-squad
 ```
 
 ```sh
-sm source add https://github.com/teelabs/skills.git --install
-sm install teelabs/skills version-changelog --force
+sm source add https://github.com/teelabs/teelabs-skills.git --install
+sm install teelabs/teelabs-skills version-changelog --force
 ```
 
 Each skill directory is a source unit. A consumer can update `dev-squad` without updating `version-changelog`, subject to the installer’s source and lockfile behavior.
@@ -61,7 +61,7 @@ The body should make the agent’s process explicit, use progressive disclosure 
 ```json
 {
   "schemaVersion": 1,
-  "repository": "https://github.com/teelabs/skills",
+  "repository": "https://github.com/teelabs/teelabs-skills",
   "skills": [
     { "name": "dev-squad", "path": "dev-squad", "summary": "..." }
   ]
@@ -96,15 +96,15 @@ The same command runs in GitHub Actions on pushes and pull requests. CI should u
 
 The collection itself is distributed from Git. There is no root npm package and no root version that couples all skills. `CHANGELOG.md` tracks collection-level changes under `[Unreleased]` and identifies affected skill slugs. Skill authors should keep changes scoped to the affected skill whenever possible.
 
-The README must show both the plural `npx skills` CLI and `sm` commands, including selective install and update examples. `sm source add ... --install` is documented as source registration plus all-skill import; selective installation uses `sm install teelabs/skills <skill> --force`. It must state that users should review skill instructions before enabling them because a skill is trusted agent input.
+The README must show both the plural `npx skills` CLI and `sm` commands, including selective install and update examples. `sm source add ... --install` is documented as source registration plus all-skill import; selective installation uses `sm install teelabs/teelabs-skills <skill> --force`. It must state that users should review skill instructions before enabling them because a skill is trusted agent input.
 
 ## Acceptance criteria
 
-- `teelabs/skills` exists on GitHub and its default branch is `main`.
+- `teelabs/teelabs-skills` exists on GitHub and its default branch is `main`.
 - A fresh clone contains the two existing skills plus the collection governance and validation files.
 - The validator exits zero on the committed tree.
 - GitHub Actions runs the validator.
-- `npx skills add teelabs/skills --list` discovers both existing skills.
+- `npx skills add teelabs/teelabs-skills --list` discovers both existing skills.
 - Selective install examples name one skill at a time, and update examples demonstrate independent updates.
-- `sm source add` can recognize the repository as a source, and `sm install teelabs/skills version-changelog --force` can install a selected skill.
+- `sm source add` can recognize the repository as a source, and `sm install teelabs/teelabs-skills version-changelog --force` can install a selected skill.
 - An isolated verification proves that updating one skill leaves the other skill and its companion files unchanged for both supported CLIs.

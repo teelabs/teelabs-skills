@@ -18,14 +18,14 @@ under that directory are installed and updated with the skill.
 List the skills available from this collection:
 
 ```sh
-npx skills add teelabs/skills --list
+npx skills add teelabs/teelabs-skills --list
 ```
 
 Install one skill at a time:
 
 ```sh
-npx skills add teelabs/skills --skill dev-squad
-npx skills add teelabs/skills --skill version-changelog
+npx skills add teelabs/teelabs-skills --skill dev-squad
+npx skills add teelabs/teelabs-skills --skill version-changelog
 ```
 
 Update a single installed skill without selecting the others:
@@ -43,14 +43,14 @@ treated as untrusted input until reviewed.
 Register this repository as a source and import all discovered skills:
 
 ```sh
-sm source add https://github.com/teelabs/skills.git --install
+sm source add https://github.com/teelabs/teelabs-skills.git --install
 ```
 
 Install or update one selected skill independently:
 
 ```sh
-sm install teelabs/skills version-changelog --force
-sm install teelabs/skills dev-squad --force
+sm install teelabs/teelabs-skills version-changelog --force
+sm install teelabs/teelabs-skills dev-squad --force
 ```
 
 `sm source add ... --install` performs source registration plus all-skill

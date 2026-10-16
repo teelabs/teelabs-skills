@@ -37,7 +37,7 @@ Main agent integrates delegated outputs, resolves findings, runs the validator, 
 
 ## Task 5: GitHub publication
 
-Main agent initializes git if needed, commits the complete initial tree, creates `teelabs/skills` with `gh repo create`, pushes `main`, and verifies repository metadata and remote content. Use `gh` for GitHub mutations. Then test public `npx skills add teelabs/skills --list`, one selected install, and one selected update; test `sm source add`/`sm install` using isolated temporary state where supported.
+Main agent initializes git if needed, commits the complete initial tree, creates `teelabs/teelabs-skills` with `gh repo create`, pushes `main`, and verifies repository metadata and remote content. Use `gh` for GitHub mutations. Then test public `npx skills add teelabs/teelabs-skills --list`, one selected install, and one selected update; test `sm source add`/`sm install` using isolated temporary state where supported.
 
 ## Completion contract
 

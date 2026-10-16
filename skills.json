@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "repository": "https://github.com/teelabs/skills",
+  "repository": "https://github.com/teelabs/teelabs-skills",
   "skills": [
     {
       "name": "dev-squad",

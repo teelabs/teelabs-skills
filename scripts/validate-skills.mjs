@@ -236,8 +236,8 @@ function validateMetadata(skills) {
     return;
   }
   if (metadata.schemaVersion !== 1) fail('skills.json: schemaVersion must be 1');
-  if (metadata.repository !== 'https://github.com/teelabs/skills') {
-    fail('skills.json: repository must be https://github.com/teelabs/skills');
+  if (metadata.repository !== 'https://github.com/teelabs/teelabs-skills') {
+    fail('skills.json: repository must be https://github.com/teelabs/teelabs-skills');
   }
   if (!Array.isArray(metadata.skills)) {
     fail('skills.json: skills must be an array');
