@@ -5,6 +5,7 @@ changes identify the affected skill slug.
 
 ## [Unreleased]
 
+- Added the `audit-text` skill for language-independent GitHub text validation.
 - Added collection governance, metadata, contribution guidance, and CI
   configuration for `dev-squad` and `version-changelog`.
 - Changed the canonical repository URL to `teelabs/teelabs-skills` to avoid

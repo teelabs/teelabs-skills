@@ -3,6 +3,11 @@
   "repository": "https://github.com/teelabs/teelabs-skills",
   "skills": [
     {
+      "name": "audit-text",
+      "path": "audit-text",
+      "summary": "Audit GitHub text for literal escaped line breaks without depending on the audited project's language or package manager."
+    },
+    {
       "name": "dev-squad",
       "path": "dev-squad",
       "summary": "Coordinate an evidence-driven agent team for engineering work with planning, implementation, review, testing, and approval gates."
