@@ -13,6 +13,11 @@
       "summary": "Coordinate an evidence-driven agent team for engineering work with planning, implementation, review, testing, and approval gates."
     },
     {
+      "name": "privacy-boundary-audit",
+      "path": "privacy-boundary-audit",
+      "summary": "Audit project artifacts for local-environment disclosures and private-to-public information leakage."
+    },
+    {
       "name": "version-changelog",
       "path": "version-changelog",
       "summary": "Manage SemVer versions and Keep a Changelog entries across all version-tracking files."

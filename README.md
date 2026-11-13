@@ -8,6 +8,7 @@ Codex, Claude Code, Cursor, OpenCode, and other Agent Skills-compatible tools.
 | Skill | Use it when |
 | --- | --- |
 | [`dev-squad`](dev-squad/SKILL.md) | You want an evidence-driven agent team for a feature, bug, refactor, investigation, or cross-cutting engineering task. |
+| [`privacy-boundary-audit`](privacy-boundary-audit/SKILL.md) | You are preparing a commit or project text that could disclose local-environment details or private-project information. |
 | [`version-changelog`](version-changelog/SKILL.md) | You need consistent SemVer and Keep a Changelog updates across a project. |
 
 Each top-level skill directory is an independent source unit. Companion files
@@ -25,6 +26,7 @@ Install one skill at a time:
 
 ```sh
 npx skills add teelabs/teelabs-skills --skill dev-squad
+npx skills add teelabs/teelabs-skills --skill privacy-boundary-audit
 npx skills add teelabs/teelabs-skills --skill version-changelog
 ```
 
@@ -51,6 +53,7 @@ Install or update one selected skill independently:
 ```sh
 sm install teelabs/teelabs-skills version-changelog --force
 sm install teelabs/teelabs-skills dev-squad --force
+sm install teelabs/teelabs-skills privacy-boundary-audit --force
 ```
 
 `sm source add ... --install` performs source registration plus all-skill
