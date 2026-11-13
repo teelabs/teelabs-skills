@@ -5,6 +5,9 @@ changes identify the affected skill slug.
 
 ## [Unreleased]
 
+- Changed the README and contributor contract catalogs to include `audit-text`,
+  `dev-squad`, `privacy-boundary-audit`, and `version-changelog`.
+
 - Added the `privacy-boundary-audit` skill and scanner for local-environment disclosures and private-to-public information leakage, with fail-closed handling for unscanned staged content.
 
 - Added the `audit-text` skill for language-independent GitHub text validation.

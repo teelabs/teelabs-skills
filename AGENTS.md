@@ -9,6 +9,21 @@ Each immediate child directory containing `SKILL.md` is a public skill. Keep
 changes scoped to the affected skill whenever possible; do not couple skills
 through a root package or release version.
 
+## Public skills
+
+Keep this inventory and the README skill catalog synchronized with every
+immediate child directory containing `SKILL.md`. The current public skills are:
+
+| Skill | Use it when |
+| --- | --- |
+| [`audit-text`](audit-text/SKILL.md) | Checking GitHub text for literal escaped line breaks. |
+| [`dev-squad`](dev-squad/SKILL.md) | Coordinating evidence-driven engineering work across agents. |
+| [`privacy-boundary-audit`](privacy-boundary-audit/SKILL.md) | Checking project artifacts for local-environment disclosure or private-to-public leakage. |
+| [`version-changelog`](version-changelog/SKILL.md) | Managing SemVer and Keep a Changelog updates across version-tracking files. |
+
+When adding or removing a skill, update both catalogs, `skills.json`, and the
+collection changelog in the same change.
+
 ## Skill safety
 
 Skills are executable instruction supplied to AI systems. Treat every skill

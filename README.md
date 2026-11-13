@@ -7,6 +7,7 @@ Codex, Claude Code, Cursor, OpenCode, and other Agent Skills-compatible tools.
 
 | Skill | Use it when |
 | --- | --- |
+| [`audit-text`](audit-text/SKILL.md) | You need to catch literal escaped line breaks in GitHub issues, pull requests, comments, or reviews. |
 | [`dev-squad`](dev-squad/SKILL.md) | You want an evidence-driven agent team for a feature, bug, refactor, investigation, or cross-cutting engineering task. |
 | [`privacy-boundary-audit`](privacy-boundary-audit/SKILL.md) | You are preparing a commit or project text that could disclose local-environment details or private-project information. |
 | [`version-changelog`](version-changelog/SKILL.md) | You need consistent SemVer and Keep a Changelog updates across a project. |
@@ -26,6 +27,7 @@ Install one skill at a time:
 
 ```sh
 npx skills add teelabs/teelabs-skills --skill dev-squad
+npx skills add teelabs/teelabs-skills --skill audit-text
 npx skills add teelabs/teelabs-skills --skill privacy-boundary-audit
 npx skills add teelabs/teelabs-skills --skill version-changelog
 ```
@@ -51,15 +53,17 @@ sm source add https://github.com/teelabs/teelabs-skills.git --install
 Install or update one selected skill independently:
 
 ```sh
-sm install teelabs/teelabs-skills version-changelog --force
+sm install teelabs/teelabs-skills audit-text --force
 sm install teelabs/teelabs-skills dev-squad --force
 sm install teelabs/teelabs-skills privacy-boundary-audit --force
+sm install teelabs/teelabs-skills version-changelog --force
 ```
+
+Check the manager’s current help and review the source before changing a
+global skill installation.
 
 `sm source add ... --install` performs source registration plus all-skill
 import. Use `sm install <source> <skill> --force` when selecting one skill.
-Check the manager’s current help and review the source before changing a
-global skill installation.
 
 ## Trust and security
 
