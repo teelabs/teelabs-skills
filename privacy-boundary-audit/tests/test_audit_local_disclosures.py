@@ -1,4 +1,5 @@
 import importlib.util
+import os
 import pathlib
 import subprocess
 import tempfile
@@ -26,6 +27,24 @@ class LocalDisclosureScanTests(unittest.TestCase):
 
     def test_detects_home_file_uri(self):
         self.assertEqual([(1, "home-file-uri")], module.find_candidates("file:///Users/example/private/data.db"))
+
+    def test_detects_windows_home_file_uri(self):
+        self.assertEqual(
+            [(1, "home-file-uri")],
+            module.find_candidates("file:///C:/Users/example/Documents/private.txt"),
+        )
+
+    def test_detects_home_path_after_unrelated_file_uri(self):
+        self.assertEqual(
+            [(1, "posix-home")],
+            module.find_candidates("file:///etc/hosts and /home/example-user/private/data.txt"),
+        )
+
+    def test_detects_root_and_named_user_home_paths(self):
+        self.assertEqual(
+            [(1, "posix-home"), (1, "home-shortcut")],
+            module.find_candidates("/root/.config/tool and ~example-user/.config/tool"),
+        )
 
     def test_detects_environment_expansions_without_echoing_them(self):
         source = 'Use "$HOME/data" and "$PWD/build"; account=${USER}'
@@ -88,6 +107,76 @@ class LocalDisclosureScanTests(unittest.TestCase):
             self.assertIn("staged-1:1 candidate=posix-home", result.stdout)
             self.assertNotIn("example-user", result.stdout)
             self.assertNotIn("config.json", result.stdout)
+
+    def test_staged_scan_detects_utf16_text(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = pathlib.Path(directory)
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+            doc = repo / "README.md"
+            doc.write_bytes("See /home/example-user/private/config.json\n".encode("utf-16"))
+            subprocess.run(["git", "add", "README.md"], cwd=repo, check=True)
+            result = subprocess.run(
+                ["python3", str(SCRIPT), "--staged"], cwd=repo, check=False,
+                capture_output=True, text=True,
+            )
+            self.assertEqual(1, result.returncode)
+            self.assertIn("candidate=posix-home", result.stdout)
+            self.assertNotIn("example-user", result.stdout)
+
+    def test_staged_scan_fails_closed_for_undecodable_blobs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = pathlib.Path(directory)
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+            doc = repo / "README.md"
+            doc.write_bytes(b"\xff\xfe\x00")
+            subprocess.run(["git", "add", "README.md"], cwd=repo, check=True)
+            result = subprocess.run(
+                ["python3", str(SCRIPT), "--staged"], cwd=repo, check=False,
+                capture_output=True, text=True,
+            )
+            self.assertEqual(1, result.returncode)
+            self.assertIn("candidate=unscanned-encoding", result.stdout)
+            self.assertNotIn("README.md", result.stdout)
+
+    @unittest.skipUnless(os.name == "posix", "invalid byte filenames require POSIX")
+    def test_staged_scan_reads_blob_with_non_utf8_filename(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = pathlib.Path(directory)
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+            filename = b"doc-\xff.md"
+            file_path = os.fsencode(repo) + b"/" + filename
+            descriptor = os.open(file_path, os.O_WRONLY | os.O_CREAT, 0o600)
+            with os.fdopen(descriptor, "wb") as document:
+                document.write(b"See /home/example-user/private/config.json\n")
+            subprocess.run([b"git", b"add", b"--", filename], cwd=repo, check=True)
+            result = subprocess.run(
+                ["python3", str(SCRIPT), "--staged"], cwd=repo, check=False,
+                capture_output=True, text=True,
+            )
+            self.assertEqual(1, result.returncode)
+            self.assertIn("candidate=posix-home", result.stdout)
+            self.assertNotIn("example-user", result.stdout)
+            self.assertNotIn("doc-", result.stdout)
+
+    def test_staged_scan_ignores_unchanged_index_paths(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = pathlib.Path(directory)
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+            subprocess.run(["git", "config", "user.name", "Audit Test"], cwd=repo, check=True)
+            subprocess.run(["git", "config", "user.email", "audit@example.invalid"], cwd=repo, check=True)
+            unchanged = repo / "README.md"
+            unchanged.write_text("Historical text: /home/example-user/private/config.json\n")
+            staged = repo / "notes.md"
+            staged.write_text("New safe text\n")
+            subprocess.run(["git", "add", "README.md", "notes.md"], cwd=repo, check=True)
+            subprocess.run(["git", "commit", "-qm", "baseline"], cwd=repo, check=True)
+            staged.write_text("New safe text, updated\n")
+            subprocess.run(["git", "add", "notes.md"], cwd=repo, check=True)
+            result = subprocess.run(
+                ["python3", str(SCRIPT), "--staged"], cwd=repo, check=False,
+                capture_output=True, text=True,
+            )
+            self.assertEqual(0, result.returncode)
 
 
 if __name__ == "__main__":

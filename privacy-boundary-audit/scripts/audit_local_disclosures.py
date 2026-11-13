@@ -11,10 +11,10 @@ import sys
 from collections.abc import Iterable
 
 PATTERNS = (
-    ("posix-home", re.compile(r"(?<![\w.])/(?:home|Users)/[A-Za-z0-9._-]+(?:/[^\s`\"'<>]*)?")),
+    ("posix-home", re.compile(r"(?i)(?<!file://)(?<![A-Z]:)(?<![\w.])/(?:home|Users|root)/[A-Za-z0-9._-]+(?:/[^\s`\"'<>]*)?")),
     ("windows-profile", re.compile(r"(?i)(?<![\w])[A-Z]:\\Users\\[^\\\s`\"'<>]+(?:\\[^\s`\"'<>]*)?")),
-    ("home-file-uri", re.compile(r"(?i)file:///(?:home|Users)/[^\s`\"'<>]+")),
-    ("home-shortcut", re.compile(r"(?<![\w])~/(?:[^\s`\"'<>]+)")),
+    ("home-file-uri", re.compile(r"(?i)file:///(?:[A-Z]:/Users/|(?:home|Users|root)/)[^\s`\"'<>]+")),
+    ("home-shortcut", re.compile(r"(?<![\w])~(?:[A-Za-z0-9._-]+)?/(?:[^\s`\"'<>]+)?")),
     ("home-variable", re.compile(r"(?<![\w])\$\{?HOME\}?(?![\w])")),
     ("working-directory-variable", re.compile(r"(?<![\w])\$\{?PWD\}?(?![\w])")),
     ("account-variable", re.compile(r"(?i)(?<![\w])\$\{?(?:USER|USERNAME)\}?(?![\w])|%USERNAME%")),
@@ -35,8 +35,6 @@ def find_candidates(source: str) -> list[tuple[int, str]]:
     findings: list[tuple[int, str]] = []
     for line_number, line in enumerate(source.splitlines(), start=1):
         for category, pattern in PATTERNS:
-            if category == "posix-home" and re.search(r"(?i)file:///", line):
-                continue
             if pattern.search(line):
                 findings.append((line_number, category))
     return findings
@@ -48,27 +46,52 @@ def format_findings(source_name: str, findings: Iterable[tuple[int, str]]) -> st
     return "\n".join(f"{safe_name}:{line} candidate={category}" for line, category in findings)
 
 
-def staged_files() -> list[tuple[str, str]]:
+def decode_text(blob: bytes) -> str | None:
+    """Decode supported text formats, or return None so callers fail closed."""
+    if blob.startswith((b"\xff\xfe", b"\xfe\xff")):
+        try:
+            return blob.decode("utf-16")
+        except UnicodeDecodeError:
+            return None
+    try:
+        return blob.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        return None
+
+
+def staged_files() -> list[str | None]:
     """Read complete staged blobs so unchanged sensitive lines are included."""
-    result = subprocess.run(
-        ["git", "diff", "--cached", "--name-only", "-z"],
+    changed = subprocess.run(
+        ["git", "diff", "--cached", "--name-only", "--diff-filter=ACMRT", "-z"],
         check=True,
         capture_output=True,
     )
-    files: list[tuple[str, str]] = []
-    for raw_path in result.stdout.split(b"\0"):
-        if not raw_path:
-            continue
-        path = raw_path.decode("utf-8", "replace")
-        blob = subprocess.run(["git", "show", f":{path}"], capture_output=True)
-        if blob.returncode != 0:
+    changed_paths = {path for path in changed.stdout.split(b"\0") if path}
+    if not changed_paths:
+        return []
+    result = subprocess.run(
+        ["git", "ls-files", "--stage", "-z"],
+        check=True,
+        capture_output=True,
+    )
+    contents: list[str | None] = []
+    found_paths: set[bytes] = set()
+    for record in result.stdout.split(b"\0"):
+        if not record:
             continue
         try:
-            content = blob.stdout.decode("utf-8")
-        except UnicodeDecodeError:
+            header, path = record.split(b"\t", 1)
+            _mode, object_id, _stage = header.split()
+        except ValueError:
+            contents.append(None)
             continue
-        files.append((path, content))
-    return files
+        if path not in changed_paths:
+            continue
+        found_paths.add(path)
+        blob = subprocess.run([b"git", b"cat-file", b"blob", object_id], capture_output=True)
+        contents.append(decode_text(blob.stdout) if blob.returncode == 0 else None)
+    contents.extend(None for _ in changed_paths - found_paths)
+    return contents
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -81,17 +104,21 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         if args.staged:
-            sources = [(f"staged-{index}", content) for index, (_, content) in enumerate(staged_files(), start=1)]
+            sources = [(f"staged-{index}", content) for index, content in enumerate(staged_files(), start=1)]
         elif args.stdin:
-            sources = [("stdin", sys.stdin.read())]
+            sources = [("stdin", decode_text(sys.stdin.buffer.read()))]
         else:
-            sources = [(f"file-{index}", path.read_text(errors="replace")) for index, path in enumerate(args.files, start=1)]
+            sources = [(f"file-{index}", decode_text(path.read_bytes())) for index, path in enumerate(args.files, start=1)]
     except (OSError, subprocess.CalledProcessError) as error:
         print(f"Unable to complete disclosure scan ({type(error).__name__}).", file=sys.stderr)
         return 2
 
     total = 0
     for name, source in sources:
+        if source is None:
+            total += 1
+            print(f"{name} candidate=unscanned-encoding")
+            continue
         numbered = find_candidates(source)
         if numbered:
             total += len(numbered)

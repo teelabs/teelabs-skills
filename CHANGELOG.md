@@ -5,7 +5,7 @@ changes identify the affected skill slug.
 
 ## [Unreleased]
 
-- Added the `privacy-boundary-audit` skill for checking local-environment disclosures and private-to-public information leakage.
+- Added the `privacy-boundary-audit` skill and scanner for local-environment disclosures and private-to-public information leakage, with fail-closed handling for unscanned staged content.
 
 - Added the `audit-text` skill for language-independent GitHub text validation.
 - Added collection governance, metadata, contribution guidance, and CI
